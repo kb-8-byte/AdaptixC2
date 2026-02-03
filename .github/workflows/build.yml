@@ -72,7 +72,7 @@ jobs:
           name: adaptix-server-linux
           path: |
             dist/adaptixserver
-            dist/profile.yml
+            dist/profile.yaml
             dist/404page.html
             dist/ssl_gen.sh
           retention-days: 30
