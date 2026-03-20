@@ -27,21 +27,21 @@ const (
 	TYPE_SYNC_CATEGORY_BATCH = 0x15
 
 	TYPE_CHAT_MESSAGE = 0x18
+	TYPE_SERVICE_DATA = 0x19
 
-	TYPE_SERVICE_REG  = 0x21
-	TYPE_SERVICE_DATA = 0x22
+	TYPE_LISTENER_REG = 0x21
+	TYPE_AGENT_REG    = 0x22
+	TYPE_SERVICE_REG  = 0x23
 
-	TYPE_LISTENER_REG   = 0x31
-	TYPE_LISTENER_START = 0x32
+	TYPE_LISTENER_START = 0x31
+	TYPE_LISTENER_EDIT  = 0x32
 	TYPE_LISTENER_STOP  = 0x33
-	TYPE_LISTENER_EDIT  = 0x34
 
-	TYPE_AGENT_REG    = 0x41
-	TYPE_AGENT_NEW    = 0x42
-	TYPE_AGENT_TICK   = 0x43
-	TYPE_AGENT_UPDATE = 0x44
+	TYPE_AGENT_NEW    = 0x41
+	TYPE_AGENT_UPDATE = 0x42
+	TYPE_AGENT_REMOVE = 0x43
+	TYPE_AGENT_TICK   = 0x44
 	TYPE_AGENT_LINK   = 0x45
-	TYPE_AGENT_REMOVE = 0x46
 
 	TYPE_AGENT_TASK_SYNC   = 0x49
 	TYPE_AGENT_TASK_UPDATE = 0x4a
@@ -52,6 +52,7 @@ const (
 	TYPE_DOWNLOAD_CREATE = 0x51
 	TYPE_DOWNLOAD_UPDATE = 0x52
 	TYPE_DOWNLOAD_DELETE = 0x53
+	TYPE_DOWNLOAD_ACTUAL = 0x54
 
 	TYPE_TUNNEL_CREATE = 0x57
 	TYPE_TUNNEL_EDIT   = 0x58
@@ -84,6 +85,8 @@ const (
 	TYPE_TARGETS_EDIT    = 0x88
 	TYPE_TARGETS_DELETE  = 0x89
 	TYPE_TARGETS_SET_TAG = 0x8a
+
+	TYPE_AXSCRIPT_COMMANDS = 0x91
 )
 
 func CreateSpNotification(notifyType int, message string) SpNotification {
@@ -176,7 +179,7 @@ func CreateSpListenerStop(name string) SyncPackerListenerStop {
 
 /// AGENT
 
-func CreateSpAgentReg(agent string, ax string, listeners []string, multiListeners bool) SyncPackerAgentReg {
+func CreateSpAgentReg(agent string, ax string, listeners []string, multiListeners bool, groups []AxCommandBatch) SyncPackerAgentReg {
 	return SyncPackerAgentReg{
 		SpType: TYPE_AGENT_REG,
 
@@ -184,6 +187,7 @@ func CreateSpAgentReg(agent string, ax string, listeners []string, multiListener
 		AX:             ax,
 		Listeners:      listeners,
 		MultiListeners: multiListeners,
+		Groups:         groups,
 	}
 }
 
@@ -472,6 +476,23 @@ func CreateSpDownloadDelete(fileId []string) SyncPackerDownloadDelete {
 	}
 }
 
+func CreateSpDownloadActual(downloadData adaptix.DownloadData) SyncPackerDownloadActual {
+	return SyncPackerDownloadActual{
+		SpType: TYPE_DOWNLOAD_ACTUAL,
+
+		AgentId:   downloadData.AgentId,
+		AgentName: downloadData.AgentName,
+		FileId:    downloadData.FileId,
+		User:      downloadData.User,
+		Computer:  downloadData.Computer,
+		File:      downloadData.RemotePath,
+		Size:      downloadData.TotalSize,
+		Date:      downloadData.Date,
+		RecvSize:  downloadData.RecvSize,
+		State:     downloadData.State,
+	}
+}
+
 /// SCREEN
 
 func CreateSpScreenshotCreate(screenData adaptix.ScreenData) SyncPackerScreenshotCreate {
@@ -731,5 +752,16 @@ func CreateSpServiceData(service string, data string) SyncPackerServiceData {
 
 		Service: service,
 		Data:    data,
+	}
+}
+
+/// AXSCRIPT
+
+func CreateSpAxScriptData(name string, content string, groups []AxCommandBatch) SyncPackerAxScriptData {
+	return SyncPackerAxScriptData{
+		SpType:  TYPE_AXSCRIPT_COMMANDS,
+		Name:    name,
+		Content: content,
+		Groups:  groups,
 	}
 }
